@@ -1,6 +1,7 @@
-
+const _ = require('lodash');
 
 let CanvasMouseListener = {
+  onChange: null,
   canvasPos: {
     left: 0,
     top: 0,
@@ -9,36 +10,54 @@ let CanvasMouseListener = {
     y: 0,
     yPre: 0,
     mouse: 0,
-    set: function(newX, newY) {
-      this.xPre = this.x;
-      this.yPre = this.y;
-      this.x = newX - this.left;
-      this.y = newY - this.top;
+    enter: 0,
+  },
+  set: function set(newX, newY) {
+    this.canvasPos.xPre = this.canvasPos.x;
+    this.canvasPos.yPre = this.canvasPos.y;
+    this.canvasPos.x = newX - this.canvasPos.left;
+    this.canvasPos.y = newY - this.canvasPos.top;
+    if (this.onChange) {
+      this.onChange(this.canvasPos);
     }
   },
-  init: function(canvas) {
-    let self = this;
+  init: function init(canvas) {
+    this.canvasPos.left = canvas.offsetLeft;
+    this.canvasPos.top = canvas.offsetTop;
+    attachEventListener.bind(this, canvas)();
+  }
+}
 
-    self.canvasPos.left = canvas.offsetLeft;
-    self.canvasPos.top = canvas.offsetTop;
+const attachEventListener = function attachEventListener(canvas) {
+  // Bind mouse events
+  canvas.addEventListener('mouseenter', (event) => {
+    this.canvasPos.enter = 1;
+    event.preventDefault();
+  })
 
-    // Bind mouse events
-    canvas.addEventListener('mousedown', function(e) {
-      self.canvasPos.set(e.clientX, e.clientY);
-      self.canvasPos.mouse = 1;
-      e.preventDefault();
-    });
+  canvas.addEventListener('mouseleave', (event) => {
+    this.canvasPos.enter = 0;
+    this.canvasPos.mouse = 0;
+    event.preventDefault();
+  })
 
-    canvas.addEventListener('mouseup', function(e) {
-      self.canvasPos.set(e.clientX, e.clientY);
-      self.canvasPos.mouse = 0;
-      e.preventDefault();
-    });
+  canvas.addEventListener('mousedown', (event) => {
+    this.set(event.clientX, event.clientY);
+    this.canvasPos.mouse = 1;
+    event.preventDefault();
+  });
 
-    canvas.addEventListener('mousemove', function(e) {
-      if (self.canvasPos.mouse)
-        console.log('Dragging', e.clientX - self.canvasPos.left, e.clientY - self.canvasPos.top);
-    });
+  canvas.addEventListener('mouseup', (event) => {
+    this.canvasPos.mouse = 0;
+    event.preventDefault();
+  });
+
+  canvas.addEventListener('mousemove', _.throttle(mousemove.bind(this), 10));
+}
+
+const mousemove = function mousemove(event) {
+  if (this.canvasPos.mouse) {
+    this.set(event.clientX, event.clientY);
   }
 }
 

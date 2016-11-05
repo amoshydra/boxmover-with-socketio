@@ -13,8 +13,14 @@ canvas.style.position = "absolute";
 canvas.style.border   = "1px solid";
 
 document.body.appendChild(canvas);
-console.log(CanvasMouse);
+
 CanvasMouse.init(canvas);
 var ctx = canvas.getContext("2d");
+
 ctx.fillStyle = "green";
-ctx.fillRect(10, 10, 100, 100);
+ctx.fillRect(CanvasMouse.canvasPos.x, CanvasMouse.canvasPos.y, 100, 100);
+
+CanvasMouse.onChange = function(canvasPos) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(canvasPos.x - 50, canvasPos.y - 50, 100, 100);
+};

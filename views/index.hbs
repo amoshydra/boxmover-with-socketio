@@ -1,2 +1,8 @@
 <h1>{{title}}</h1>
 <p>Welcome to {{title}}</p>
+
+<script src="javascripts/vendors/socket.io/socket.io-1.4.5.js"></script>
+<script>
+  var hostPath = 'http://localhost:3000/';
+  var socket = io(hostPath);
+</script>

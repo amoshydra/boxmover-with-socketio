@@ -6,9 +6,8 @@ const IOManager = function IOManager(server) {
   console.log('Socket.io is initialized');
 
   io.on('connection', function(socket) {
-    console.log('a user connected');
+    console.log(`Connected: ${socket.client.conn.id}`);
   });
-
 }
 
 module.exports = IOManager;

@@ -1,6 +1,6 @@
 
 
-var CanvasMouseListener = {
+let CanvasMouseListener = {
   canvasPos: {
     left: 0,
     top: 0,
@@ -16,8 +16,8 @@ var CanvasMouseListener = {
       this.y = newY - this.top;
     }
   },
-  init: function init(canvas) {
-    var self = this;
+  init: function(canvas) {
+    let self = this;
 
     self.canvasPos.left = canvas.offsetLeft;
     self.canvasPos.top = canvas.offsetTop;

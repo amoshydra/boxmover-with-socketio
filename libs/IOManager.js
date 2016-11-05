@@ -7,7 +7,12 @@ const IOManager = function IOManager(server) {
 
   io.on('connection', function(socket) {
     console.log(`Connected: ${socket.client.conn.id}`);
+
+    socket.on('newbox', function(box) {
+      socket.broadcast.emit('newbox', box);
+    })
   });
+
 }
 
 module.exports = IOManager;

@@ -4,21 +4,25 @@ let CanvasMouseListener = {
   onChange: null,
   canvasPos: {
     left: 0,
-    top: 0,
+    top: 0
+  },
+  mousePos: {
     x: 0,
     xPre: 0,
     y: 0,
-    yPre: 0,
-    mouse: 0,
-    enter: 0,
+    yPre: 0
+  },
+  mouseStatus: {
+    clicked: false,
+    inCanvas: false
   },
   set: function set(newX, newY) {
-    this.canvasPos.xPre = this.canvasPos.x;
-    this.canvasPos.yPre = this.canvasPos.y;
-    this.canvasPos.x = newX - this.canvasPos.left;
-    this.canvasPos.y = newY - this.canvasPos.top;
+    this.mousePos.xPre = this.mousePos.x;
+    this.mousePos.yPre = this.mousePos.y;
+    this.mousePos.x = newX - this.canvasPos.left;
+    this.mousePos.y = newY - this.canvasPos.top;
     if (this.onChange) {
-      this.onChange(this.canvasPos);
+      this.onChange(this.mousePos);
     }
   },
   init: function init(canvas) {
@@ -31,24 +35,24 @@ let CanvasMouseListener = {
 const attachEventListener = function attachEventListener(canvas) {
   // Bind mouse events
   canvas.addEventListener('mouseenter', (event) => {
-    this.canvasPos.enter = 1;
+    this.mouseStatus.inCanvas = true;
     event.preventDefault();
   })
 
   canvas.addEventListener('mouseleave', (event) => {
-    this.canvasPos.enter = 0;
-    this.canvasPos.mouse = 0;
+    this.mouseStatus.inCanvas = false;
+    this.mouseStatus.clicked = false;
     event.preventDefault();
   })
 
   canvas.addEventListener('mousedown', (event) => {
     this.set(event.clientX, event.clientY);
-    this.canvasPos.mouse = 1;
+    this.mouseStatus.clicked = true;
     event.preventDefault();
   });
 
   canvas.addEventListener('mouseup', (event) => {
-    this.canvasPos.mouse = 0;
+    this.mouseStatus.clicked = false;
     event.preventDefault();
   });
 
@@ -56,7 +60,7 @@ const attachEventListener = function attachEventListener(canvas) {
 }
 
 const mousemove = function mousemove(event) {
-  if (this.canvasPos.mouse) {
+  if (this.mouseStatus.clicked) {
     this.set(event.clientX, event.clientY);
   }
 }

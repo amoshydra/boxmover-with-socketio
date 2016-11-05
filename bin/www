@@ -7,6 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('socketio-game:server');
 var http = require('http');
+var IOManager = require('../libs/ioManager');
 
 /**
  * Get port from environment and store in Express.
@@ -22,12 +23,19 @@ app.set('port', port);
 var server = http.createServer(app);
 
 /**
+* Initialize socket.io
+*/
+
+IOManager(server);
+
+/**
  * Listen on provided port, on all network interfaces.
  */
 
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
 
 /**
  * Normalize a port into a number, string, or false.

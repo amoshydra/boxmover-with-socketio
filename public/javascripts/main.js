@@ -21,7 +21,7 @@ var ctx = canvas.getContext("2d");
 
 // Box
 let box = {
-  color: 'green',
+  color: '#7a3d17',
   width: 100,
   height: 100,
   pos: {

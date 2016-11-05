@@ -56,6 +56,7 @@ const attachEventListener = function attachEventListener(canvas) {
     event.preventDefault();
   });
 
+  canvas.addEventListener("touchmove", _.throttle(touchmove.bind(this), 10));
   canvas.addEventListener('mousemove', _.throttle(mousemove.bind(this), 10));
 }
 
@@ -63,6 +64,11 @@ const mousemove = function mousemove(event) {
   if (this.mouseStatus.clicked) {
     this.set(event.clientX, event.clientY);
   }
+}
+
+const touchmove = function touchmove(event) {
+  let newEvent = event.changedTouches[0];
+  this.set(newEvent.clientX, newEvent.clientY);
 }
 
 module.exports = CanvasMouseListener;

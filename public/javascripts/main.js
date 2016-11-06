@@ -3,8 +3,8 @@ let CanvasMouse = require('./libs/CanvasMouseListener');
 let Box = require('./libs/Box');
 
 // Socket io
-let hostPath = 'http://localhost:3000';
-let socket = io(hostPath);
+// let hostPath = 'http://localhost:3000';
+let socket = io();
 
 // Setting up canvas
 let canvas = document.createElement('canvas');

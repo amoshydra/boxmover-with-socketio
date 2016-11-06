@@ -79,6 +79,7 @@ const mousemove = function mousemove(event) {
 
 const touchmove = function touchmove(event) {
   let newEvent = event.changedTouches[0];
+  this.click(newEvent.clientX, newEvent.clientY);
   this.drag(newEvent.clientX, newEvent.clientY);
 }
 

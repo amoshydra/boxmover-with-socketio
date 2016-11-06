@@ -1,28 +1,38 @@
-const _ = require('lodash');
+let _ = require('lodash');
 
 let CanvasMouseListener = {
-  onChange: null,
+  onUnclick: null,
+  onDrag: null,
+  onClick: null,
   canvasPos: {
     left: 0,
     top: 0
   },
   mousePos: {
     x: 0,
-    xPre: 0,
     y: 0,
-    yPre: 0
   },
   mouseStatus: {
     clicked: false,
     inCanvas: false
   },
-  set: function set(newX, newY) {
-    this.mousePos.xPre = this.mousePos.x;
-    this.mousePos.yPre = this.mousePos.y;
+  unclick: function unclick() {
+    if (this.onUnclick) {
+      this.onUnclick();
+    }
+  },
+  click: function click(newX, newY) {
     this.mousePos.x = newX - this.canvasPos.left;
     this.mousePos.y = newY - this.canvasPos.top;
-    if (this.onChange) {
-      this.onChange(this.mousePos);
+    if (this.onClick) {
+      this.onClick(this.mousePos);
+    }
+  },
+  drag: function drag(newX, newY) {
+    this.mousePos.x = newX - this.canvasPos.left;
+    this.mousePos.y = newY - this.canvasPos.top;
+    if (this.onDrag) {
+      this.onDrag(this.mousePos);
     }
   },
   init: function init(canvas) {
@@ -46,13 +56,14 @@ const attachEventListener = function attachEventListener(canvas) {
   })
 
   canvas.addEventListener('mousedown', (event) => {
-    this.set(event.clientX, event.clientY);
+    this.click(event.clientX, event.clientY);
     this.mouseStatus.clicked = true;
     event.preventDefault();
   });
 
   canvas.addEventListener('mouseup', (event) => {
     this.mouseStatus.clicked = false;
+    this.unclick();
     event.preventDefault();
   });
 
@@ -62,13 +73,13 @@ const attachEventListener = function attachEventListener(canvas) {
 
 const mousemove = function mousemove(event) {
   if (this.mouseStatus.clicked) {
-    this.set(event.clientX, event.clientY);
+    this.drag(event.clientX, event.clientY);
   }
 }
 
 const touchmove = function touchmove(event) {
   let newEvent = event.changedTouches[0];
-  this.set(newEvent.clientX, newEvent.clientY);
+  this.drag(newEvent.clientX, newEvent.clientY);
 }
 
 module.exports = CanvasMouseListener;

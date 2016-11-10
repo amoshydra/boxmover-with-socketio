@@ -23,9 +23,9 @@ let ctx = canvas.getContext("2d");
 // Creating object in canvas
 
 // -- Initialise boxes
-let boxArray = [];
-boxArray.push(new Box.BoxEntity());
-boxArray.push(new Box.BoxEntity({
+let boxArray_GLOBAL = [];
+boxArray_GLOBAL.push(new Box.BoxEntity());
+boxArray_GLOBAL.push(new Box.BoxEntity({
   color: 'blue',
   height: 20,
   width: 20,
@@ -36,18 +36,18 @@ boxArray.push(new Box.BoxEntity({
 }));
 
 // -- Render boxes
-renderBoxes(boxArray, canvas);
+renderBoxes(boxArray_GLOBAL, canvas);
 
 // -- Control boxes
 let specialIndex = -1;
 
 CanvasMouse.onDrag = function(mousePos) {
   if (specialIndex != -1) {
-    boxArray[specialIndex].pos.x = mousePos.x;
-    boxArray[specialIndex].pos.y = mousePos.y;
+    boxArray_GLOBAL[specialIndex].pos.x = mousePos.x;
+    boxArray_GLOBAL[specialIndex].pos.y = mousePos.y;
   }
-  renderBoxes(boxArray, canvas);
-  socket.emit('newbox', boxArray);
+  renderBoxes(boxArray_GLOBAL, canvas);
+  socket.emit('newbox', boxArray_GLOBAL[specialIndex], specialIndex);
 };
 
 function isWithinBox(mouseRaw, box) {
@@ -68,15 +68,15 @@ function findBoxIndex(mouse, boxes) {
 }
 
 CanvasMouse.onClick = function(mousePos) {
-  specialIndex = findBoxIndex(mousePos, boxArray);
+  specialIndex = findBoxIndex(mousePos, boxArray_GLOBAL);
 };
 CanvasMouse.onUnclick = function() {
   specialIndex = -1;
 }
 
-socket.on('newbox', function(newBoxArray) {
-  boxArray = newBoxArray;
-  renderBoxes(boxArray, canvas);
+socket.on('newbox', function(newBox, boxIndex) {
+  boxArray_GLOBAL[boxIndex] = newBox;
+  renderBoxes(boxArray_GLOBAL, canvas);
 });
 
 function renderBoxes(boxes, canvas) {

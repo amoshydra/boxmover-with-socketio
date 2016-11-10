@@ -13,8 +13,8 @@ const IOManager = function IOManager(server) {
   io.on('connection', function(socket) {
     console.log(`Connected: ${socket.client.conn.id}`);
 
-    socket.on('newbox', function(boxJson) {
-      socket.broadcast.emit('newbox', boxJson);
+    socket.on('newbox', function(newBoxObj, newBoxIndex) {
+      socket.broadcast.emit('newbox', newBoxObj, newBoxIndex);
     })
   });
 

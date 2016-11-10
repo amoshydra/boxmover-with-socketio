@@ -43,6 +43,10 @@ boxArray_GLOBAL.push(new Box.BoxEntity({
   }
 }));
 
+// -- Exit loading screen
+let loadingModal = document.getElementById('loading-modal');
+loadingModal.parentNode.removeChild(loadingModal);
+
 // -- Render boxes
 renderBoxes(boxArray_GLOBAL, canvas);
 

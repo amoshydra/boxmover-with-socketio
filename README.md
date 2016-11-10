@@ -2,7 +2,7 @@
 
 Canvas + socket.io
 
-![](http://i.imgur.com/BOl9M7X.png)
+![](http://i.imgur.com/MUTmyrr.png)
 
 # Running this
 ```

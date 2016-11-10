@@ -7,15 +7,7 @@ let Box = require('./libs/Box');
 let socket = io();
 
 // Setting up canvas
-let canvas = document.createElement('canvas');
-canvas.id     = "canvas";
-canvas.width  = 400;
-canvas.height = 400;
-canvas.style.zIndex   = 8;
-canvas.style.position = "absolute";
-canvas.style.border   = "1px solid";
-
-document.body.appendChild(canvas);
+let canvas = document.getElementById('canvas');
 CanvasMouse.init(canvas);
 let ctx = canvas.getContext("2d");
 

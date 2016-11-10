@@ -30,4 +30,17 @@ button {
   color: rgba(0,0,0,0.68);
   background-color: #fefefe;
   box-shadow: 1px 2px 4px 0 rgba(0,0,0,0.2);
+  -webkit-transition: -webkit-transform 0.2s; /* Changed here */
+     -moz-transition: -moz-transform 0.2s;
+       -o-transition: -o-transform 0.2s;
+          transition: transform 0.2s;
+} button:focus {
+  outline: none;
+} button:active {
+  -webkit-transform: translate(0, 5%);
+     -moz-transform: translate(0, 5%);
+      -ms-transform: translate(0, 5%);
+       -o-transform: translate(0, 5%);
+          transform: translate(0, 5%);
+
 }

@@ -125,6 +125,7 @@ function renderBoxes(boxes, canvas) {
   let ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (let i = 0; i < boxes.length; i++) {
-    Box.render(boxes[i], canvas);
+    if (boxes[i])
+      Box.render(boxes[i], canvas);
   }
 }

@@ -91,12 +91,14 @@ socket.on('connect', function() {
 
   socket.on('request-boxes', function(playerId) {
     if (socket.id !== playerId) {
+      console.log('sending', boxArray_GLOBAL, 'to ' + playerId);
       socket.emit('send-boxes', boxArray_GLOBAL, playerId);
     }
   });
 
   socket.on('receive-boxes', function(boxes, playerId) {
     if (socket.id === playerId) {
+      console.log('receiving', boxes, 'from ' + playerId);
       boxArray_GLOBAL = boxes;
       renderBoxes(boxArray_GLOBAL, canvas);
     }

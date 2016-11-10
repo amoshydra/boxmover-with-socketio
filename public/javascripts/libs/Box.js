@@ -11,22 +11,39 @@ let Box = {
         y: props.pos.y
       };
     } else {
-      this.color = 'red';
-      this.width = 100;
-      this.height = 100;
+      this.color = getRandomColor();
+      this.width = Math.floor((Math.random() * 60) + 40);
+      this.height = Math.floor((Math.random() * 60) + 40);
       this.pos = {
-        x: 100,
-        y: 100
+        x: Math.floor((Math.random() * 120) + 40),
+        y: Math.floor((Math.random() * 120) + 40)
       };
     }
   },
   render: function render(box, canvas) {
     let ctx = canvas.getContext("2d");
-    let halfLength = box.width/2;
 
+    let posX = box.pos.x - box.width/2;
+    let poxY = box.pos.y - box.height/2
+    let shadowX = 5;
+    let shadowY = 5;
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+    for (let i = 0; i < 4; i++) {
+      ctx.fillRect(posX + shadowX - i, poxY + shadowY - i, box.width, box.height);
+    }
     ctx.fillStyle = box.color;
-    ctx.fillRect(box.pos.x - halfLength, box.pos.y - halfLength, box.width, box.height);
+    ctx.fillRect(posX, poxY, box.width, box.height);
   }
 };
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
 
 module.exports = Box;

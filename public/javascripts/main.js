@@ -11,19 +11,35 @@ let canvas = document.getElementById('canvas');
 CanvasMouse.init(canvas);
 let ctx = canvas.getContext("2d");
 
-
-// Creating object in canvas
-
 // -- Initialise boxes
 let boxArray_GLOBAL = [];
-boxArray_GLOBAL.push(new Box.BoxEntity());
+
+// Setting up Control
+let btnAdd = document.getElementById('add');
+let btnDel = document.getElementById('del');
+btnAdd.addEventListener("click", addBox);
+btnDel.addEventListener("click", delBox);
+
+function addBox() {
+  let newBox = new Box.BoxEntity();
+  boxArray_GLOBAL.push(newBox);
+  socket.emit('add-box', newBox);
+  renderBoxes(boxArray_GLOBAL, canvas);
+}
+function delBox() {
+  boxArray_GLOBAL.pop();
+  socket.emit('del-box');
+  renderBoxes(boxArray_GLOBAL, canvas);
+}
+
+// Creating object in canvas
 boxArray_GLOBAL.push(new Box.BoxEntity({
-  color: 'blue',
-  height: 20,
-  width: 20,
+  color: 'orange',
+  height: 100,
+  width: 100,
   pos: {
-    x: 45,
-    y: 45
+    x: 100,
+    y: 100
   }
 }));
 
@@ -39,7 +55,7 @@ CanvasMouse.onDrag = function(mousePos) {
     boxArray_GLOBAL[specialIndex].pos.y = mousePos.y;
   }
   renderBoxes(boxArray_GLOBAL, canvas);
-  socket.emit('newbox', boxArray_GLOBAL[specialIndex], specialIndex);
+  socket.emit('modify-box', boxArray_GLOBAL[specialIndex], specialIndex);
 };
 
 function isWithinBox(mouseRaw, box) {
@@ -66,8 +82,16 @@ CanvasMouse.onUnclick = function() {
   specialIndex = -1;
 }
 
-socket.on('newbox', function(newBox, boxIndex) {
+socket.on('modify-box', function(newBox, boxIndex) {
   boxArray_GLOBAL[boxIndex] = newBox;
+  renderBoxes(boxArray_GLOBAL, canvas);
+});
+socket.on('add-box', function(newBox) {
+  boxArray_GLOBAL.push(newBox);
+  renderBoxes(boxArray_GLOBAL, canvas);
+});
+socket.on('del-box', function() {
+  boxArray_GLOBAL.pop();
   renderBoxes(boxArray_GLOBAL, canvas);
 });
 

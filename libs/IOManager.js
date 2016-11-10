@@ -3,6 +3,11 @@ const engine = require('socket.io');
 
 const IOManager = function IOManager(server) {
   const io = engine(server);
+  io.engine.ws = new (require('uws').Server)({
+    noServer: true,
+    perMessageDeflate: false
+  });
+
   console.log('Socket.io is initialized');
 
   io.on('connection', function(socket) {

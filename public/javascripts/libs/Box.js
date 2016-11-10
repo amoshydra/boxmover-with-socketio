@@ -25,13 +25,7 @@ let Box = {
 
     let posX = box.pos.x - box.width/2;
     let poxY = box.pos.y - box.height/2
-    let shadowX = 5;
-    let shadowY = 5;
 
-    ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-    for (let i = 0; i < 4; i++) {
-      ctx.fillRect(posX + shadowX - i, poxY + shadowY - i, box.width, box.height);
-    }
     ctx.fillStyle = box.color;
     ctx.fillRect(posX, poxY, box.width, box.height);
   }

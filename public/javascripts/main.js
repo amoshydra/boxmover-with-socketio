@@ -86,18 +86,38 @@ CanvasMouse.onUnclick = function() {
   specialIndex = -1;
 }
 
-socket.on('modify-box', function(newBox, boxIndex) {
-  boxArray_GLOBAL[boxIndex] = newBox;
-  renderBoxes(boxArray_GLOBAL, canvas);
+socket.on('connect', function() {
+  socket.emit('new-player', socket.id);
+
+  socket.on('request-boxes', function(playerId) {
+    if (socket.id !== playerId) {
+      socket.emit('send-boxes', boxArray_GLOBAL, playerId);
+    }
+  });
+
+  socket.on('receive-boxes', function(boxes, playerId) {
+    if (socket.id === playerId) {
+      boxArray_GLOBAL = boxes;
+      renderBoxes(boxArray_GLOBAL, canvas);
+    }
+  });
+
+  socket.on('modify-box', function(newBox, boxIndex) {
+    boxArray_GLOBAL[boxIndex] = newBox;
+    renderBoxes(boxArray_GLOBAL, canvas);
+  });
+
+  socket.on('add-box', function(newBox) {
+    boxArray_GLOBAL.push(newBox);
+    renderBoxes(boxArray_GLOBAL, canvas);
+  });
+  socket.on('del-box', function() {
+    boxArray_GLOBAL.pop();
+    renderBoxes(boxArray_GLOBAL, canvas);
+  });
 });
-socket.on('add-box', function(newBox) {
-  boxArray_GLOBAL.push(newBox);
-  renderBoxes(boxArray_GLOBAL, canvas);
-});
-socket.on('del-box', function() {
-  boxArray_GLOBAL.pop();
-  renderBoxes(boxArray_GLOBAL, canvas);
-});
+
+
 
 function renderBoxes(boxes, canvas) {
   let ctx = canvas.getContext("2d");

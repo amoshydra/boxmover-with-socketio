@@ -43,44 +43,37 @@ let CanvasMouseListener = {
 }
 
 const attachEventListener = function attachEventListener(canvas) {
-  // Bind mouse events
-  canvas.addEventListener('mouseenter', (event) => {
+  // Bind pointer events
+  canvas.addEventListener('pointerenter', (event) => {
     this.mouseStatus.inCanvas = true;
     event.preventDefault();
   })
 
-  canvas.addEventListener('mouseleave', (event) => {
+  canvas.addEventListener('pointerleave', (event) => {
     this.mouseStatus.inCanvas = false;
     this.mouseStatus.clicked = false;
     event.preventDefault();
   })
 
-  canvas.addEventListener('mousedown', (event) => {
+  canvas.addEventListener('pointerdown', (event) => {
     this.click(event.clientX, event.clientY);
     this.mouseStatus.clicked = true;
     event.preventDefault();
   });
 
-  canvas.addEventListener('mouseup', (event) => {
+  canvas.addEventListener('pointerup', (event) => {
     this.mouseStatus.clicked = false;
     this.unclick();
     event.preventDefault();
   });
 
-  canvas.addEventListener("touchmove", _.throttle(touchmove.bind(this), 10));
-  canvas.addEventListener('mousemove', _.throttle(mousemove.bind(this), 10));
+  canvas.addEventListener('pointermove', _.throttle(mousemove.bind(this), 10));
 }
 
 const mousemove = function mousemove(event) {
   if (this.mouseStatus.clicked) {
     this.drag(event.clientX, event.clientY);
   }
-}
-
-const touchmove = function touchmove(event) {
-  let newEvent = event.changedTouches[0];
-  this.click(newEvent.clientX, newEvent.clientY);
-  this.drag(newEvent.clientX, newEvent.clientY);
 }
 
 module.exports = CanvasMouseListener;

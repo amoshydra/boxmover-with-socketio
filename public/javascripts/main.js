@@ -33,15 +33,7 @@ function delBox() {
 }
 
 // Creating object in canvas
-boxArray_GLOBAL.push(new Box.BoxEntity({
-  color: 'orange',
-  height: 100,
-  width: 100,
-  pos: {
-    x: 100,
-    y: 100
-  }
-}));
+boxArray_GLOBAL.push(new Box.BoxEntity());
 
 // -- Exit loading screen
 let loadingModal = document.getElementById('loading-modal');
@@ -91,14 +83,12 @@ socket.on('connect', function() {
 
   socket.on('request-boxes', function(playerId) {
     if (socket.id !== playerId) {
-      console.log('sending', boxArray_GLOBAL, 'to ' + playerId);
       socket.emit('send-boxes', boxArray_GLOBAL, playerId);
     }
   });
 
   socket.on('receive-boxes', function(boxes, playerId) {
     if (socket.id === playerId) {
-      console.log('receiving', boxes, 'from ' + playerId);
       boxArray_GLOBAL = boxes;
       renderBoxes(boxArray_GLOBAL, canvas);
     }

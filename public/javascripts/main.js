@@ -50,9 +50,15 @@ CanvasMouse.onDrag = function(mousePos) {
     boxArray_GLOBAL[specialIndex].pos.x = mousePos.x;
     boxArray_GLOBAL[specialIndex].pos.y = mousePos.y;
   }
-  renderBoxes(boxArray_GLOBAL, canvas);
   socket.emit('modify-box', boxArray_GLOBAL[specialIndex], specialIndex);
+  renderBoxes(boxArray_GLOBAL, canvas);
 };
+CanvasMouse.onClick = function(mousePos) {
+  specialIndex = findBoxIndex(mousePos, boxArray_GLOBAL);
+};
+CanvasMouse.onUnclick = function() {
+  specialIndex = -1;
+}
 
 function isWithinBox(mouseRaw, box) {
   let mouseX = mouseRaw.x + (box.width / 2);
@@ -71,12 +77,6 @@ function findBoxIndex(mouse, boxes) {
   return -1;
 }
 
-CanvasMouse.onClick = function(mousePos) {
-  specialIndex = findBoxIndex(mousePos, boxArray_GLOBAL);
-};
-CanvasMouse.onUnclick = function() {
-  specialIndex = -1;
-}
 
 socket.on('connect', function() {
   socket.emit('new-player', socket.id);
@@ -97,6 +97,7 @@ socket.on('connect', function() {
   socket.on('modify-box', function(newBox, boxIndex) {
     boxArray_GLOBAL[boxIndex] = newBox;
     renderBoxes(boxArray_GLOBAL, canvas);
+    if (boxIndex == specialIndex) specialIndex = -1;
   });
 
   socket.on('add-box', function(newBox) {

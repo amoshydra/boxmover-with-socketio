@@ -25,8 +25,8 @@ let Box = {
   render: function render(box, canvas) {
     let ctx = canvas.getContext("2d");
 
-    let posX = box.pos.x - box.width/2;
-    let poxY = box.pos.y - box.height/2;
+    let posX = box.pos.x;
+    let poxY = box.pos.y;
 
     ctx.fillStyle = box.color;
     ctx.fillRect(posX, poxY, box.width, box.height);

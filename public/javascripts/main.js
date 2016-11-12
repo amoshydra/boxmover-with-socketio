@@ -17,8 +17,10 @@ let boxArray_GLOBAL = [];
 // Setting up Control
 let btnAdd = document.getElementById('add');
 let btnDel = document.getElementById('del');
+let btnCol = document.getElementById('collision');
 btnAdd.addEventListener("click", addBox);
 btnDel.addEventListener("click", delBox);
+btnCol.addEventListener("click", toggleCollision);
 
 function addBox() {
   let newBox = new Box.BoxEntity();
@@ -30,6 +32,14 @@ function delBox() {
   boxArray_GLOBAL.pop();
   socket.emit('del-box');
   renderBoxes(boxArray_GLOBAL, canvas);
+}
+var config = {
+  collision: false
+}
+function toggleCollision() {
+  config.collision = !config.collision;
+  btnCol.className = config.collision;
+  socket.emit('toggle-collision');
 }
 
 // -- Exit loading screen
@@ -48,16 +58,61 @@ let cursor = {
   }
 }
 
+function resolveCollision(force) {
+  for (let i = 0; i < boxArray_GLOBAL.length; i++) {
+    if (i == force || !boxArray_GLOBAL[i]) continue;
+
+    let checkBox = boxArray_GLOBAL[i];
+    let dragBox = boxArray_GLOBAL[force];
+
+    if (checkBox.pos.x < dragBox.pos.x + dragBox.width &&
+        checkBox.pos.x + checkBox.width > dragBox.pos.x &&
+        checkBox.pos.y < dragBox.pos.y + dragBox.height &&
+        checkBox.pos.y + checkBox.height > dragBox.pos.y) {
+
+        if (i == cursor.index) giveUpBox();
+        let pushForce = 0.2;
+
+        let dragCenX = dragBox.pos.x + dragBox.width/2;
+        let dragCenY = dragBox.pos.y + dragBox.height/2;
+        let checkCenX = checkBox.pos.x + checkBox.width/2;
+        let checkCenY = checkBox.pos.y + checkBox.height/2;
+
+        let radian = Math.atan2(dragCenY - checkCenY, dragCenX - checkCenX);
+        let directionDeg = radian * 180 / Math.PI;
+        let boxDeg = Math.atan2(checkBox.height + dragBox.height, checkBox.width + dragBox.width) * 180 / Math.PI;
+
+        if ((-180 < directionDeg && directionDeg <= (-(180 - boxDeg))) ||
+           ((180 - boxDeg) < directionDeg && (directionDeg <= 180)))
+          boxArray_GLOBAL[i].pos.x = dragBox.pos.x + (dragBox.width + pushForce);
+        else if (-boxDeg < directionDeg && directionDeg <= boxDeg)
+          boxArray_GLOBAL[i].pos.x = dragBox.pos.x - (checkBox.width + pushForce);
+        else if (boxDeg < directionDeg && directionDeg <= 180 - boxDeg)
+          boxArray_GLOBAL[i].pos.y = dragBox.pos.y - (checkBox.height + pushForce);
+        else
+          boxArray_GLOBAL[i].pos.y = dragBox.pos.y + (dragBox.height + pushForce);
+
+        resolveCollision(i);
+    }
+  }
+}
+
 CanvasMouse.onDrag = function(mousePos) {
   if (cursor.index != -1) {
     boxArray_GLOBAL[cursor.index].pos.x = mousePos.x + cursor.offset.x;
     boxArray_GLOBAL[cursor.index].pos.y = mousePos.y + cursor.offset.y;
     socket.emit('modify-box', boxArray_GLOBAL[cursor.index], cursor.index);
+
+    // detect collision
+    if (config.collision) resolveCollision(cursor.index);
     renderBoxes(boxArray_GLOBAL, canvas);
+
+
   }
 };
 
-CanvasMouse.onClick = function pickUpBox(mousePos) {
+CanvasMouse.onClick = function(mousePos) {pickUpBox(mousePos);};
+let pickUpBox = function pickUpBox(mousePos) {
   cursor.index = findBoxIndex(mousePos, boxArray_GLOBAL);
 
   if (cursor.index >= 0) {
@@ -70,7 +125,9 @@ CanvasMouse.onClick = function pickUpBox(mousePos) {
   }
 };
 
-CanvasMouse.onUnclick = function giveUpBox() {
+
+CanvasMouse.onUnclick = function() {giveUpBox();};
+let giveUpBox = function giveUpBox() {
   if (boxArray_GLOBAL[cursor.index]) {
     socket.emit('free-box', cursor.index);
     boxArray_GLOBAL[cursor.index].isOccupied = false;
@@ -78,14 +135,11 @@ CanvasMouse.onUnclick = function giveUpBox() {
   cursor.index = -1;
 };
 
-function isWithinBox(mouseRaw, box) {
-  let mouseX = mouseRaw.x + (box.width / 2);
-  let mouseY = mouseRaw.y + (box.height/ 2);
-
-  return (box.pos.x <= mouseX) &&
-         (mouseX <= (box.width + box.pos.x)) &&
-         (box.pos.y <= mouseY) &&
-         (mouseY <= (box.height + box.pos.y));
+function isWithinBox(mouse, box) {
+  return (box.pos.x <= mouse.x) &&
+         (mouse.x <= (box.width + box.pos.x)) &&
+         (box.pos.y <= mouse.y) &&
+         (mouse.y <= (box.height + box.pos.y));
 }
 
 function findBoxIndex(mouse, boxes) {
@@ -99,15 +153,19 @@ function findBoxIndex(mouse, boxes) {
 socket.on('connect', function() {
   socket.emit('new-player', socket.id);
 
-  socket.on('receive-boxes', function(boxes, playerId) {
+  socket.on('receive-boxes', function(boxes, receivedConfig, playerId) {
     if (socket.id === playerId) {
       boxArray_GLOBAL = boxes;
       renderBoxes(boxArray_GLOBAL, canvas);
+
+      config = receivedConfig;
+      btnCol.className = config.collision;
     }
   });
 
   socket.on('modify-box', function(newBox, boxIndex) {
     boxArray_GLOBAL[boxIndex] = newBox;
+    resolveCollision(boxIndex);
     renderBoxes(boxArray_GLOBAL, canvas);
     if (boxIndex == cursor.index) cursor.index = -1;
   });
@@ -126,6 +184,11 @@ socket.on('connect', function() {
   socket.on('free-box', function(boxIndex) {
     boxArray_GLOBAL[boxIndex].isOccupied = false;
   });
+
+  socket.on('set-config', function(receivedConfig) {
+    config = receivedConfig;
+    btnCol.className = config.collision;
+  })
 });
 
 function renderBoxes(boxes, canvas) {

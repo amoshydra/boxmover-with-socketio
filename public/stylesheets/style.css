@@ -2,6 +2,12 @@ h1 {
   font-size: 1.5em;
 }
 
+.false {
+  color: #990000;
+} .true {
+  color: #009900;
+}
+
 body {
   padding: 0;
   margin: 0;

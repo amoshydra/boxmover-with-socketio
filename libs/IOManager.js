@@ -9,14 +9,17 @@ const IOManager = function IOManager(server) {
   });
 
   console.log('Socket.io is initialized');
-  boxArrayServer = [];
+  let boxArrayServer = [];
+  let config = {
+    collision: true
+  };
 
   io.on('connection', function(socket) {
 
     socket.on('new-player', function(newPlayerId) {
       console.log();
       console.log(`  > ${socket.client.conn.id} just joined the game. ${socket.handshake.address}`);
-      socket.emit('receive-boxes', boxArrayServer, newPlayerId);
+      socket.emit('receive-boxes', boxArrayServer, config, newPlayerId);
     });
 
     socket.on('modify-box', function(newBoxObj, newBoxIndex) {
@@ -41,6 +44,11 @@ const IOManager = function IOManager(server) {
     socket.on('free-box', function(index) {
       socket.broadcast.emit('free-box', index);
     });
+
+    socket.on('toggle-collision', function() {
+      config.collision = !config.collision;
+      socket.broadcast.emit('set-config', config);
+    })
   });
 
 }

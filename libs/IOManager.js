@@ -30,7 +30,7 @@ const IOManager = function IOManager(server) {
     });
 
     socket.on('del-box', function() {
-      boxArrayServer.pop;
+      boxArrayServer.pop();
       socket.broadcast.emit('del-box');
     });
 

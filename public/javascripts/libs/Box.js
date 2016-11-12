@@ -6,6 +6,7 @@ let Box = {
       this.color = props.color;
       this.width = props.width;
       this.height = props.height;
+      this.isOccupied = false;
       this.pos = {
         x: props.pos.x,
         y: props.pos.y
@@ -14,6 +15,7 @@ let Box = {
       this.color = getRandomColor();
       this.width = Math.floor((Math.random() * 60) + 40);
       this.height = Math.floor((Math.random() * 60) + 40);
+      this.isOccupied = false;
       this.pos = {
         x: Math.floor((Math.random() * 120) + 40),
         y: Math.floor((Math.random() * 120) + 40)

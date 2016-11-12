@@ -32,9 +32,6 @@ function delBox() {
   renderBoxes(boxArray_GLOBAL, canvas);
 }
 
-// Creating object in canvas
-boxArray_GLOBAL.push(new Box.BoxEntity());
-
 // -- Exit loading screen
 let loadingModal = document.getElementById('loading-modal');
 loadingModal.parentNode.removeChild(loadingModal);
@@ -55,8 +52,22 @@ CanvasMouse.onDrag = function(mousePos) {
 };
 CanvasMouse.onClick = function(mousePos) {
   specialIndex = findBoxIndex(mousePos, boxArray_GLOBAL);
+  if (specialIndex >= 0) pickUpBox();
 };
 CanvasMouse.onUnclick = function() {
+  giveUpBox();
+}
+
+function pickUpBox() {
+  socket.emit('occupy-box', specialIndex);
+  boxArray_GLOBAL[specialIndex].isOccupied = true;
+}
+
+function giveUpBox() {
+  if (boxArray_GLOBAL[specialIndex]) {
+    socket.emit('free-box', specialIndex);
+    boxArray_GLOBAL[specialIndex].isOccupied = false;
+  }
   specialIndex = -1;
 }
 
@@ -81,12 +92,6 @@ function findBoxIndex(mouse, boxes) {
 socket.on('connect', function() {
   socket.emit('new-player', socket.id);
 
-  socket.on('request-boxes', function(playerId) {
-    if (socket.id !== playerId) {
-      socket.emit('send-boxes', boxArray_GLOBAL, playerId);
-    }
-  });
-
   socket.on('receive-boxes', function(boxes, playerId) {
     if (socket.id === playerId) {
       boxArray_GLOBAL = boxes;
@@ -99,7 +104,6 @@ socket.on('connect', function() {
     renderBoxes(boxArray_GLOBAL, canvas);
     if (boxIndex == specialIndex) specialIndex = -1;
   });
-
   socket.on('add-box', function(newBox) {
     boxArray_GLOBAL.push(newBox);
     renderBoxes(boxArray_GLOBAL, canvas);
@@ -108,9 +112,14 @@ socket.on('connect', function() {
     boxArray_GLOBAL.pop();
     renderBoxes(boxArray_GLOBAL, canvas);
   });
+
+  socket.on('occupy-box', function(boxIndex) {
+    boxArray_GLOBAL[boxIndex].isOccupied = true;
+  });
+  socket.on('free-box', function(boxIndex) {
+    boxArray_GLOBAL[boxIndex].isOccupied = false;
+  });
 });
-
-
 
 function renderBoxes(boxes, canvas) {
   let ctx = canvas.getContext("2d");

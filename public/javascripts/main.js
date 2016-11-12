@@ -40,36 +40,43 @@ loadingModal.parentNode.removeChild(loadingModal);
 renderBoxes(boxArray_GLOBAL, canvas);
 
 // -- Control boxes
-let specialIndex = -1;
+let cursor = {
+  index: -1,
+  offset: {
+    x: 0,
+    y: 0
+  }
+}
 
 CanvasMouse.onDrag = function(mousePos) {
-  if (specialIndex != -1) {
-    boxArray_GLOBAL[specialIndex].pos.x = mousePos.x;
-    boxArray_GLOBAL[specialIndex].pos.y = mousePos.y;
+  if (cursor.index != -1) {
+    boxArray_GLOBAL[cursor.index].pos.x = mousePos.x + cursor.offset.x;
+    boxArray_GLOBAL[cursor.index].pos.y = mousePos.y + cursor.offset.y;
+    socket.emit('modify-box', boxArray_GLOBAL[cursor.index], cursor.index);
+    renderBoxes(boxArray_GLOBAL, canvas);
   }
-  socket.emit('modify-box', boxArray_GLOBAL[specialIndex], specialIndex);
-  renderBoxes(boxArray_GLOBAL, canvas);
 };
-CanvasMouse.onClick = function(mousePos) {
-  specialIndex = findBoxIndex(mousePos, boxArray_GLOBAL);
-  if (specialIndex >= 0) pickUpBox();
-};
-CanvasMouse.onUnclick = function() {
-  giveUpBox();
-}
 
-function pickUpBox() {
-  socket.emit('occupy-box', specialIndex);
-  boxArray_GLOBAL[specialIndex].isOccupied = true;
-}
+CanvasMouse.onClick = function pickUpBox(mousePos) {
+  cursor.index = findBoxIndex(mousePos, boxArray_GLOBAL);
 
-function giveUpBox() {
-  if (boxArray_GLOBAL[specialIndex]) {
-    socket.emit('free-box', specialIndex);
-    boxArray_GLOBAL[specialIndex].isOccupied = false;
+  if (cursor.index >= 0) {
+    //find offset from center
+    cursor.offset.x = boxArray_GLOBAL[cursor.index].pos.x - mousePos.x;
+    cursor.offset.y = boxArray_GLOBAL[cursor.index].pos.y - mousePos.y;
+
+    socket.emit('occupy-box', cursor.index);
+    boxArray_GLOBAL[cursor.index].isOccupied = true;
   }
-  specialIndex = -1;
-}
+};
+
+CanvasMouse.onUnclick = function giveUpBox() {
+  if (boxArray_GLOBAL[cursor.index]) {
+    socket.emit('free-box', cursor.index);
+    boxArray_GLOBAL[cursor.index].isOccupied = false;
+  }
+  cursor.index = -1;
+};
 
 function isWithinBox(mouseRaw, box) {
   let mouseX = mouseRaw.x + (box.width / 2);
@@ -102,7 +109,7 @@ socket.on('connect', function() {
   socket.on('modify-box', function(newBox, boxIndex) {
     boxArray_GLOBAL[boxIndex] = newBox;
     renderBoxes(boxArray_GLOBAL, canvas);
-    if (boxIndex == specialIndex) specialIndex = -1;
+    if (boxIndex == cursor.index) cursor.index = -1;
   });
   socket.on('add-box', function(newBox) {
     boxArray_GLOBAL.push(newBox);

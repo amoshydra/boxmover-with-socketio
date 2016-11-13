@@ -1,8 +1,8 @@
 # Move box with `socket.io`
 
-Canvas + socket.io
+A canvas + socket.io demo.
 
-![](http://i.imgur.com/MUTmyrr.png)
+![](http://boxmover.amoshydra.com/images/screenshot.png)
 
 # Running this
 ```

@@ -1,5 +1,6 @@
 const app = require('../app');
 const engine = require('socket.io');
+const Physics = require('../public/javascripts/libs/Physics');
 
 const IOManager = function IOManager(server) {
   const io = engine(server);
@@ -25,6 +26,7 @@ const IOManager = function IOManager(server) {
     socket.on('modify-box', function(newBoxObj, newBoxIndex) {
       boxArrayServer[newBoxIndex] = newBoxObj;
       socket.broadcast.emit('modify-box', newBoxObj, newBoxIndex);
+      if (config.collision) Physics.resolveCollision(newBoxIndex, boxArrayServer);
     });
 
     socket.on('add-box', function(newBoxObj) {

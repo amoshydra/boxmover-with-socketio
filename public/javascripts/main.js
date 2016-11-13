@@ -1,6 +1,7 @@
 let io = require('socket.io-client');
 let CanvasMouse = require('./libs/CanvasMouseListener');
 let Box = require('./libs/Box');
+let Physics = require('./libs/Physics');
 
 // Socket io
 // let hostPath = 'http://localhost:3000';
@@ -58,43 +59,8 @@ let cursor = {
   }
 }
 
-function resolveCollision(force) {
-  for (let i = 0; i < boxArray_GLOBAL.length; i++) {
-    if (i == force || !boxArray_GLOBAL[i]) continue;
-
-    let checkBox = boxArray_GLOBAL[i];
-    let dragBox = boxArray_GLOBAL[force];
-
-    if (checkBox.pos.x < dragBox.pos.x + dragBox.width &&
-        checkBox.pos.x + checkBox.width > dragBox.pos.x &&
-        checkBox.pos.y < dragBox.pos.y + dragBox.height &&
-        checkBox.pos.y + checkBox.height > dragBox.pos.y) {
-
-        if (i == cursor.index) giveUpBox();
-        let pushForce = 0.2;
-
-        let dragCenX = dragBox.pos.x + dragBox.width/2;
-        let dragCenY = dragBox.pos.y + dragBox.height/2;
-        let checkCenX = checkBox.pos.x + checkBox.width/2;
-        let checkCenY = checkBox.pos.y + checkBox.height/2;
-
-        let radian = Math.atan2(dragCenY - checkCenY, dragCenX - checkCenX);
-        let directionDeg = radian * 180 / Math.PI;
-        let boxDeg = Math.atan2(checkBox.height + dragBox.height, checkBox.width + dragBox.width) * 180 / Math.PI;
-
-        if ((-180 < directionDeg && directionDeg <= (-(180 - boxDeg))) ||
-           ((180 - boxDeg) < directionDeg && (directionDeg <= 180)))
-          boxArray_GLOBAL[i].pos.x = dragBox.pos.x + (dragBox.width + pushForce);
-        else if (-boxDeg < directionDeg && directionDeg <= boxDeg)
-          boxArray_GLOBAL[i].pos.x = dragBox.pos.x - (checkBox.width + pushForce);
-        else if (boxDeg < directionDeg && directionDeg <= 180 - boxDeg)
-          boxArray_GLOBAL[i].pos.y = dragBox.pos.y - (checkBox.height + pushForce);
-        else
-          boxArray_GLOBAL[i].pos.y = dragBox.pos.y + (dragBox.height + pushForce);
-
-        resolveCollision(i);
-    }
-  }
+Physics.onCollide = function(victim) {
+  if (victim == cursor.index) { giveUpBox(); }
 }
 
 CanvasMouse.onDrag = function(mousePos) {
@@ -104,10 +70,8 @@ CanvasMouse.onDrag = function(mousePos) {
     socket.emit('modify-box', boxArray_GLOBAL[cursor.index], cursor.index);
 
     // detect collision
-    if (config.collision) resolveCollision(cursor.index);
+    if (config.collision) Physics.resolveCollision(cursor.index, boxArray_GLOBAL);
     renderBoxes(boxArray_GLOBAL, canvas);
-
-
   }
 };
 
@@ -165,7 +129,7 @@ socket.on('connect', function() {
 
   socket.on('modify-box', function(newBox, boxIndex) {
     boxArray_GLOBAL[boxIndex] = newBox;
-    resolveCollision(boxIndex);
+    Physics.resolveCollision(boxIndex, boxArray_GLOBAL);
     renderBoxes(boxArray_GLOBAL, canvas);
     if (boxIndex == cursor.index) cursor.index = -1;
   });

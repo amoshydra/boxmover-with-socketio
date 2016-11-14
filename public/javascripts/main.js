@@ -129,7 +129,7 @@ socket.on('connect', function() {
 
   socket.on('modify-box', function(newBox, boxIndex) {
     boxArray_GLOBAL[boxIndex] = newBox;
-    Physics.resolveCollision(boxIndex, boxArray_GLOBAL);
+    if (config.collision) Physics.resolveCollision(boxIndex, boxArray_GLOBAL);
     renderBoxes(boxArray_GLOBAL, canvas);
     if (boxIndex == cursor.index) cursor.index = -1;
   });

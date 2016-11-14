@@ -1,6 +1,7 @@
 let io = require('socket.io-client');
 let CanvasMouse = require('./libs/CanvasMouseListener');
 let Box = require('./libs/Box');
+let BoxCounter = require('./libs/BoxCounter');
 let Physics = require('./libs/Physics');
 
 // Socket io
@@ -28,11 +29,13 @@ function addBox() {
   boxArray_GLOBAL.push(newBox);
   socket.emit('add-box', newBox);
   renderBoxes(boxArray_GLOBAL, canvas);
+  BoxCounter.cng(boxArray_GLOBAL.length);
 }
 function delBox() {
   boxArray_GLOBAL.pop();
   socket.emit('del-box');
   renderBoxes(boxArray_GLOBAL, canvas);
+  BoxCounter.cng(boxArray_GLOBAL.length);
 }
 var config = {
   collision: false
@@ -124,6 +127,7 @@ socket.on('connect', function() {
 
       config = receivedConfig;
       btnCol.className = config.collision;
+      BoxCounter.init(boxArray_GLOBAL.length, 'title');
     }
   });
 
@@ -136,10 +140,12 @@ socket.on('connect', function() {
   socket.on('add-box', function(newBox) {
     boxArray_GLOBAL.push(newBox);
     renderBoxes(boxArray_GLOBAL, canvas);
+    BoxCounter.cng(boxArray_GLOBAL.length);
   });
   socket.on('del-box', function() {
     boxArray_GLOBAL.pop();
     renderBoxes(boxArray_GLOBAL, canvas);
+    BoxCounter.cng(boxArray_GLOBAL.length);
   });
 
   socket.on('occupy-box', function(boxIndex) {

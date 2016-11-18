@@ -28,6 +28,7 @@ function addBox() {
   let newBox = new Box.BoxEntity();
   boxArray_GLOBAL.push(newBox);
   socket.emit('add-box', newBox);
+  if (config.collision) Physics.resolveCollision(boxArray_GLOBAL.length - 1, boxArray_GLOBAL);
   renderBoxes(boxArray_GLOBAL, canvas);
   BoxCounter.cng(boxArray_GLOBAL.length);
 }

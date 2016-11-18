@@ -32,6 +32,7 @@ const IOManager = function IOManager(server) {
     socket.on('add-box', function(newBoxObj) {
       boxArrayServer.push(newBoxObj);
       socket.broadcast.emit('add-box', newBoxObj);
+      if (config.collision) Physics.resolveCollision(boxArrayServer.length - 1, boxArrayServer);
     });
 
     socket.on('del-box', function() {
